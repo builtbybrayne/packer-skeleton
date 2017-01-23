@@ -13,14 +13,14 @@ usage() {
     echo "  -f <JSON_FILE>    Specify the json file inside the pack. (Default: main.json)" 1>&2;
     echo "  -h <HOSTNAME>     Hostname of target machine (optional. Default in config file)" 1>&2;
     echo "  -i <IP>           IP of target machine. (Default in config file)" 1>&2;
-    echo "  -p <PACK>         Pack" 1>&2;
+    echo "  -p <PACK>         Pack. (Default: ubuntu)" 1>&2;
     echo "  -u <USER_FILE>    User Config File. (Default: ./user.conf)" 1>&2;
     echo "" 1>&2;
     exit 1;
 }
 
 FILE="main.json"
-PACK=
+PACK="ubuntu"
 CONFIG_FILE="baremetal.conf"
 USER_FILE="user.conf"
 

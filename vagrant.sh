@@ -11,7 +11,7 @@ usage() {
     echo "" 1>&2;
     echo "  -c <CONFIG_FILE   Specify the config file. (Default: ./baremetal.conf)" 1>&2;
     echo "  -f <JSON_FILE>    Specify the json file inside the pack. (Default: main.json)" 1>&2;
-    echo "  -p <PACK>         Pack" 1>&2;
+    echo "  -p <PACK>         Pack. (Default: ubuntu)" 1>&2;
     echo "  -u <USER_FILE>    User Config File. (Default: ./user.conf)" 1>&2;
     echo "  -v <VERSION>      Version the build" 1>&2;
     echo "" 1>&2;
@@ -20,7 +20,7 @@ usage() {
 
 VERSION=
 FILE="main.json"
-PACK=
+PACK="ubuntu"
 CONFIG_FILE="vagrant.conf"
 USER_FILE="user.conf"
 

@@ -1,0 +1,144 @@
+{
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "../../keys/id_rsa.pub",
+      "destination": "/tmp/id_rsa.pub"
+    },
+    {
+      "type": "file",
+      "source": "../../resources/bash_aliases",
+      "destination": "/tmp/bash_aliases"
+    },
+    {
+      "type": "shell",
+      "scripts": [
+        "../../scripts/aliases.sh",
+        "../../scripts/apt-get.sh",
+        "../../scripts/users.sh"
+      ],
+      "execute_command": "echo 'packer' | {{ .Vars }} sudo -E -S bash '{{ .Path }}' {{user `user`}}",
+      "override": {
+        "virtualbox-iso": {
+          "execute_command": "echo 'vagrant' | sudo -E -S bash '{{ .Path }}' {{user `user`}}"
+        }
+      }
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'packer' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+      "override": {
+        "amazon-ebs": {
+          "inline": ["sudo usermod -a -G admin ubuntu"]
+        },
+        "virtualbox-iso": {
+          "inline": ["sudo usermod -a -G admin vagrant"],
+          "execute_command": "echo 'vagrant' | sudo -E -S bash '{{ .Path }}'"
+        }
+      }
+    },
+    {
+      "type": "shell",
+      "scripts": [
+        "../../scripts/ssh.sh"
+      ],
+      "execute_command": "echo 'packer' | {{ .Vars }} sudo -E -S bash '{{ .Path }}' {{user `user`}}",
+      "override": {
+        "virtualbox-iso": {
+          "execute_command": "echo 'vagrant' | sudo -E -S bash '{{ .Path }}' {{user `user`}}"
+        }
+      }
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'packer' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+      "override": {
+        "amazon-ebs": {
+          "scripts": [
+            "scripts/amazon-finish.sh"
+          ]
+        },
+        "virtualbox-iso": {
+          "scripts": [
+            "scripts/vagrant-finish.sh"
+          ],
+          "execute_command": "echo 'vagrant' | sudo -E -S bash '{{ .Path }}'"
+        }
+      }
+    },
+    {
+      "type": "shell",
+      "scripts": [
+        "../../scripts/teardown.sh"
+      ],
+      "execute_command": "echo 'packer' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+      "override": {
+        "virtualbox-iso": {
+          "execute_command": "echo 'vagrant' | sudo -E -S bash '{{ .Path }}'"
+        }
+      }
+    }
+  ],
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "ami_name": "{{user `boxname`}} - {{user `instancesize`}} {{timestamp}}",
+      "instance_type": "{{user `instancesize`}}",
+      "region": "eu-west-1",
+      "access_key": "AKIAICH24LBEK3XSRVXQ",
+      "secret_key": "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",
+      "source_ami": "ami-cf192eb8",
+      "ssh_username": "ubuntu"
+    },
+    {
+      "type": "virtualbox-iso",
+      "vm_name": "{{user `boxname`}}",
+      "output_directory": "./target/",
+      "boot_command": [
+        "<esc><esc><enter><wait>",
+        "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+        "debian-installer=en_GB auto locale=en_GB kbd-chooser/method=gb <wait>",
+        "hostname={{ .Name }} <wait>",
+        "fb=false debconf/frontend=noninteractive <wait>",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=GB keyboard-configuration/variant=GB console-setup/ask_detect=false <wait>",
+        "initrd=/install/initrd.gz -- <enter><wait>"
+      ],
+      "boot_wait": "4s",
+      "guest_os_type": "Ubuntu_64",
+      "headless": true,
+      "http_directory": "../../http",
+      "iso_checksum": "9e5fecc94b3925bededed0fdca1bd417",
+      "iso_checksum_type": "md5",
+      "iso_url": "http://releases.ubuntu.com/14.04/ubuntu-14.04.3-server-amd64.iso",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+      "ssh_pty": true,
+      "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'vagrant'|sudo -E -S bash 'shutdown.sh'",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "virtualbox_version_file": ".vbox_version",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "2048"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "4"
+        ]
+      ]
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "only": ["virtualbox-iso"],
+      "output": "../../builds/{{user `boxname`}}.box"
+    }
+  ]
+}

@@ -7,16 +7,16 @@
 
 set -e
 usage() {
-    echo "Usage: $0 -p <PACK> -f <FILE> -v <VERSION> -c <CONFIG_FILE> -u <USER_FILE>" 1>&2
-    echo "" 1>&2
+    echo "Usage: $0 -p <PACK> -f <FILE> -v <VERSION> -c <CONFIG_FILE> -u <USER_FILE>" 1>&2;
+    echo "" 1>&2;
     echo "  -c <CONFIG_FILE   Specify the config file'" 1>&2;
     echo "  -f <JSON_FILE>    Specify the json file inside the pack. Defaults to 'main.json'" 1>&2;
     echo "  -h <HOSTNAME>     Hostname of target machine (optional. Default in config file)" 1>&2;
     echo "  -i <IP>           IP of target machine. (Default in config file)" 1>&2;
     echo "  -p <PACK>         Pack" 1>&2;
     echo "  -u <USER_FILE>    User Config File" 1>&2;
-    echo "" 1>&2
-    exit 1
+    echo "" 1>&2;
+    exit 1;
 }
 
 FILE="main.json"
@@ -54,16 +54,16 @@ while getopts ":c:f:u:p:i:h:" o; do
 done
 shift $((OPTIND-1))
 
-[[ -z "$PACK" ]] && { echo "Missing pack choice" 1>&2; ARGS_MISSING=true }
-[[ -z "$CONFIG_FILE" ]] && { echo "Missing config file" 1>&2; ARGS_MISSING=true }
+[[ -z "$PACK" ]] && { echo "Missing pack choice" 1>&2; ARGS_MISSING=true; }
+[[ -z "$CONFIG_FILE" ]] && { echo "Missing config file" 1>&2; ARGS_MISSING=true; }
 
-[[ -z "$ARGS_MISSING" ]] || { echo "Args missing."; usage; exit 1; }
+[[ -z "$ARGS_MISSING" ]] || { echo "Args missing." 1>&2; usage; exit 1; }
 
 [[ ! -f "$CONFIG_FILE" ]] && { echo "Config file $CONFIG_FILE does not exist" 1>&2; FILES_MISSING=true; }
 [[ ! -f "$USER_FILE" ]] && { echo "User config file does not exist" 1>&2; FILES_MISSING=true; }
 [[ ! -f "packs/$PACK/$FILE" ]] && { echo "Json file \"$FILE\" does not exist in packs/$PACK" 1>&2; FILES_MISSING=true; }
 
-[[ -z "$FILES_MISSING" ]] || { echo "Files missing."; usage; exit 1; }
+[[ -z "$FILES_MISSING" ]] || { echo "Files missing." 1>&2; usage; exit 1; }
 
 
 
@@ -83,18 +83,18 @@ SSH_KEY=
 . "$CONFIG_FILE"
 . "$USER_FILE"
 
-[[ -z "$SSH_USER" ]] && { echo "Missing initial ssh user"; CONFIG_MISSING=true; }
-[[ -z "$SSH_PASS" ]] && { echo "Missing initial ssh password"; CONFIG_MISSING=true; }
+[[ -z "$SSH_USER" ]] && { echo "Missing initial ssh user" 1>&2; CONFIG_MISSING=true; }
+[[ -z "$SSH_PASS" ]] && { echo "Missing initial ssh password" 1>&2; CONFIG_MISSING=true; }
 
-[[ -z "$USER" ]] && { echo "Missing user"; CONFIG_MISSING=true; }
-[[ -z "$SSH_KEY" ]] && { echo "Missing user's public ssh key"; CONFIG_MISSING=true; }
+[[ -z "$USER" ]] && { echo "Missing user" 1>&2; CONFIG_MISSING=true; }
+[[ -z "$SSH_KEY" ]] && { echo "Missing user's public ssh key" 1>&2; CONFIG_MISSING=true; }
 
 [[ -n "$CLI_IP" ]] && IP="$CLI_IP"
-[[ -z "$IP" ]] && { echo "Missing IP of target machine. Can be set in config file or as cli arg"; CONFIG_MISSING=true; }
+[[ -z "$IP" ]] && { echo "Missing IP of target machine. Can be set in config file or as cli arg" 1>&2; CONFIG_MISSING=true; }
 
 [[ -n "$CLI_HOST" ]] && HOST="$CLI_HOST"
 
-[[ -z "$CONFIG_MISSING" ]] || { echo "Config missing from config file."; usage; exit 1; }
+[[ -z "$CONFIG_MISSING" ]] || { echo "Config missing from config file." 1>&2; usage; exit 1; }
 
 
 

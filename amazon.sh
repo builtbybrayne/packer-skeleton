@@ -54,17 +54,17 @@ while getopts ":c:f:v:u:p:s:" o; do
 done
 shift $((OPTIND-1))
 
-[[ -z "$PACK" ]] && { echo "Missing pack choice" 1>&2; ARGS_MISSING=true }
-[[ -z "$VERSION" ]] && { echo "Missing version" 1>&2; ARGS_MISSING=true }
-[[ -z "$CONFIG_FILE" ]] && { echo "Missing config file" 1>&2; ARGS_MISSING=true }
+[[ -z "$PACK" ]] && { echo "Missing pack choice" 1>&2; ARGS_MISSING=true; }
+[[ -z "$VERSION" ]] && { echo "Missing version" 1>&2; ARGS_MISSING=true; }
+[[ -z "$CONFIG_FILE" ]] && { echo "Missing config file" 1>&2; ARGS_MISSING=true; }
 
-[[ -z "$ARGS_MISSING" ]] || { echo "Args missing."; usage; exit 1; }
+[[ -z "$ARGS_MISSING" ]] || { echo "Args missing." 1>&2; usage; exit 1; }
 
 [[ ! -f "$CONFIG_FILE" ]] && { echo "Config file $CONFIG_FILE does not exist" 1>&2; FILES_MISSING=true; }
 [[ ! -f "$USER_FILE" ]] && { echo "User config file does not exist" 1>&2; FILES_MISSING=true; }
 [[ ! -f "packs/$PACK/$FILE" ]] && { echo "Json file \"$FILE\" does not exist in packs/$PACK" 1>&2; FILES_MISSING=true; }
 
-[[ -z "$FILES_MISSING" ]] || { echo "Files missing."; usage; exit 1; }
+[[ -z "$FILES_MISSING" ]] || { echo "Files missing." 1>&2; usage; exit 1; }
 
 ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #

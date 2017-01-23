@@ -12,7 +12,7 @@ usage() {
     echo "  -c <CONFIG_FILE   Specify the config file. (Default: ./amazon.conf)" 1>&2;
     echo "  -f <JSON_FILE>    Specify the json file inside the pack. (Default: main.json)" 1>&2;
     echo "  -p <PACK>         Pack. (Default: ubuntu)" 1>&2;
-    echo "  -s <SIZE>         Instance size. (Default: t2.small)" 1>&2;
+    echo "  -s <SIZE>         Instance size. (Default: t2.micro)" 1>&2;
     echo "  -u <USER_FILE>    User Config File. (Default: ./user.conf)" 1>&2;
     echo "  -v <VERSION>      Version the build" 1>&2;
     echo "" 1>&2
@@ -90,7 +90,7 @@ SSH_KEY=
 [[ -z "$CONFIG_MISSING" ]] || { echo "Config missing from config file."; usage; exit 1; }
 
 [[ -n "$INSTANCE_SIZE" ]] && SIZE="$INSTANCE_SIZE"
-[[ -z "$SIZE" ]] && SIZE="t2.small"
+[[ -z "$SIZE" ]] && SIZE="t2.micro"
 
 
 ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

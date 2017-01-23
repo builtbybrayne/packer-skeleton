@@ -2,8 +2,8 @@
   "provisioners": [
     {
       "type": "file",
-      "source": "../../keys/smc_id_rsa.pub",
-      "destination": "/tmp/smc_id_rsa.pub"
+      "source": "{{user ``ssh_key``}}",
+      "destination": "/tmp/id_rsa.pub"
     },
     {
       "type": "file",
@@ -100,9 +100,9 @@
       "ami_name": "{{user `boxname`}} - {{user `instancesize`}} {{timestamp}}",
       "instance_type": "{{user `instancesize`}}",
       "region": "eu-west-1",
-      "access_key": "AKIAICH24LBEK3XSRVXQ",
-      "secret_key": "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",
-      "source_ami": "ami-1967056a",
+      "access_key": "{{user `aws_access`}}",
+      "secret_key": "{{user `aws_secret`}}",
+      "source_ami": "ami-d8f4deab",
       "ssh_username": "ubuntu"
     },
     {

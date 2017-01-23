@@ -1,88 +1,56 @@
-This project creates the base ubuntu box with all the shared options required by EVERY VM in the project.
+This project creates the base ubuntu box/image with a user and some basic bash aliases baked in. 
 
-This includes:
+It does not fully provision the images as that's what ansible is for.
 
-* A base OS capable of running docker
-* Common user/SSH setups
+There are 3 supported target environments:
 
-It doesn't install any software beyond what is necessary to get basic access to a core OS that meets our project requirements. 
-For that, check out the Ansible.
-
-# Environments
-
-## Vagrant
-
-This is our dev environment. The output from this is a Vagrant Box. (Not all packs create a vagrant box, e.g. The RPi pack doesn't).
-
-A helper script `/vagrant.sh` can (optionally) build the image and load it into Vagrant for you. Then you just need to specify
-the box (`osimg/<PACK>`) in the VagrantFile and vagrant will find it.
-
-Vagrant boxes are also saved in the `/packs/<PACK>/builds` directory, so can be loaded manually from the github repo as well.
+* amazon - this will build an ami
+* vagrant - this will build a local box (which can be saved to some shared filesystem)
+* bare metal - this will provision the target machine in-situ. (Useful for embedded hardware like Raspberry Pis)
 
 
-## AWS
+# Prerequisites
 
-This is our deploy environment for non-colo application servers and ops servers.
+You must have installed the [secrets](https://bitbucket.org/droneportal/secrets) repo.
+
+You must have installed https://www.packer.io/.
+
+
+# Installation
+
+Check this repo out anywhere on your local machine.
  
-Images are built on AWS and stored within our Amazon account. So nothing is created locally.  
-
-Images a named conventionally as: `osimg-<PACK> - <SERVER_TYPE> <TIMESTAMP>`.
-
-
-
-## Raspberry Pi
-
-The RPi is a bit harder to build. The basic approach is to create a master SSD and then clone it onto each new SSD we need.
-
-The packer script doesn't build an image that we reuse, but SSHs directly in to the RPi and runs the scripts remotely. 
-
-This process only really needs to be done once per master. After that, you should save the image somewhere for future re-use.
-
-See the [docs on creating a base OS image](/docs/base_os_img.md) for details on how to set up an SSD with an original OS.
-
-
-
-# Core Requirements
-
-
-## Base OS
-
-The RPi is built on Debian Jessie 8.
-
-Vagrant and AWS boxes are available in Ubuntu Trusty 14.04 LTS, and shortly Debian Jessie 8 for compatibility with the RPi.
-
-
-## Users
-
-See [User Docs](/docs/users.md).
-
-
 
 # Usage
 
-We user [Packer](https://www.packer.io/) to build our base OS images. Check out the usage instructions there.
+## Configuration
 
-There are also a couple of utility scripts for the common packer invocations.
+Each target environment has an `<env>-example.conf` configuration file. Copy those to `<env>.conf` and make sure you're happy with the values in them.
+
+There is also a `user-example.conf` example file. Copy that to `user.conf` and again make sure you're ok with the settings. 
+
+You can override these config files per provisioning run via cli arguments. These are just convenience defaults. 
+
+
+## Running a build
+
+After setting up your config as desired, run the appropriate .sh file in the root of this directory.
  
-* `/run.sh <PACK` - simply builds the entire `main.json` defined for that pack
-* `/vagrant.sh [-b] <PACK>` - loads the pack box into vagrant, with the optional to force it to be rebuilt first
-
-
-## Packs
-
-Each directory in [/packs](/packs) contains a README with information on that particular install.
+Most settings have sane defaults provided where possible.
  
  
+# Users
+
+The default users for each target environment (e.g. ubuntu or vagrant) are still present at the end of these scripts, but they will not be accessible over SSH.
+
+
 # Directory Structure
 
 ```
 builds      --- Stores the final output builds
-docs        --- Additional documentation
 http        --- Needed for vagrant
 packs       --- The packer definitions. Each has a main.json with the core packer configuration for that pack
-- jessie    --- - Packer for Debian Jessie 8. Loads both Vagrant and AWS 
 - ubuntu    --- - Packer for Ubuntu Trust 14.04. Loads both Vagrant and AWS
-- rpi       --- - Packer for Raspberry Pi
 resources   --- files required by the scripts
 scripts     --- Common provisioning scripts available to all packs 
 ```

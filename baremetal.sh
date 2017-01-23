@@ -9,21 +9,32 @@ set -e
 usage() {
     echo "Usage: $0 -p <PACK> -f <FILE> -v <VERSION> -c <CONFIG_FILE> -u <USER_FILE>" 1>&2
     echo "" 1>&2
-    echo "  -c <CONFIG_FILE   Specify the config file. (Default: baremetal.conf)" 1>&2;
+    echo "  -c <CONFIG_FILE   Specify the config file'" 1>&2;
     echo "  -f <JSON_FILE>    Specify the json file inside the pack. Defaults to 'main.json'" 1>&2;
+    echo "  -h <HOSTNAME>     Hostname of target machine (optional. Default in config file)" 1>&2;
+    echo "  -i <IP>           IP of target machine. (Default in config file)" 1>&2;
     echo "  -p <PACK>         Pack" 1>&2;
-    echo "  -u <USER_FILE>    User Config File. (Default: ./user.conf)" 1>&2;
+    echo "  -u <USER_FILE>    User Config File" 1>&2;
     echo "" 1>&2
     exit 1
 }
 
 FILE="main.json"
 PACK=
-CONFIG_FILE="baremetal.conf"
-USER_FILE="user.conf"
+CONFIG_FILE=
+USER_FILE=
 
-while getopts ":c:f:u:p:" o; do
+CLI_IP=
+CLI_HOST=
+
+while getopts ":c:f:u:p:i:h:" o; do
     case "${o}" in
+        i)
+            IP="$OPTARG"
+            ;;
+        h)
+            HOST="$OPTARG"
+            ;;
         f)
             FILE="$OPTARG"
             ;;
@@ -72,14 +83,19 @@ SSH_KEY=
 . "$CONFIG_FILE"
 . "$USER_FILE"
 
-[[ -z "$IP" ]] && { echo "Missing IP of target machine"; CONFIG_MISSING=true; }
 [[ -z "$SSH_USER" ]] && { echo "Missing initial ssh user"; CONFIG_MISSING=true; }
 [[ -z "$SSH_PASS" ]] && { echo "Missing initial ssh password"; CONFIG_MISSING=true; }
 
 [[ -z "$USER" ]] && { echo "Missing user"; CONFIG_MISSING=true; }
 [[ -z "$SSH_KEY" ]] && { echo "Missing user's public ssh key"; CONFIG_MISSING=true; }
 
+[[ -n "$CLI_IP" ]] && IP="$CLI_IP"
+[[ -z "$IP" ]] && { echo "Missing IP of target machine. Can be set in config file or as cli arg"; CONFIG_MISSING=true; }
+
+[[ -n "$CLI_HOST" ]] && HOST="$CLI_HOST"
+
 [[ -z "$CONFIG_MISSING" ]] || { echo "Config missing from config file."; usage; exit 1; }
+
 
 
 ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

@@ -9,10 +9,11 @@ set -e
 usage() {
     echo "Usage: $0 -p <PACK> -f <FILE> -v <VERSION> -c <CONFIG_FILE> -u <USER_FILE>" 1>&2
     echo "" 1>&2
-    echo "  -c <CONFIG_FILE   Specify the config file. (Default: vagrant.conf)" 1>&2;
+    echo "  -c <CONFIG_FILE   Specify the config file'" 1>&2;
     echo "  -f <JSON_FILE>    Specify the json file inside the pack. Defaults to 'main.json'" 1>&2;
     echo "  -p <PACK>         Pack" 1>&2;
-    echo "  -u <USER_FILE>    User Config File. (Default: ./user.conf)" 1>&2;
+    echo "  -s <SIZE>         Instance size. e.g. t2.micro" 1>&2;
+    echo "  -u <USER_FILE>    User Config File" 1>&2;
     echo "  -v <VERSION>      Version the build" 1>&2;
     echo "" 1>&2
     exit 1
@@ -21,11 +22,16 @@ usage() {
 VERSION=
 FILE="main.json"
 PACK=
-CONFIG_FILE="amazon.conf"
-USER_FILE="user.conf"
+CONFIG_FILE=
+USER_FILE=
 
-while getopts ":c:f:v:u:p:" o; do
+INSTANCE_SIZE=
+
+while getopts ":c:f:v:u:p:s:" o; do
     case "${o}" in
+        s)
+            INSTANCE_SIZE="$OPTARG"
+            ;;
         f)
             FILE="$OPTARG"
             ;;
@@ -80,9 +86,11 @@ SSH_KEY=
 [[ -z "$SSH_KEY" ]] && { echo "Missing user's public ssh key"; CONFIG_MISSING=true;  }
 [[ -z "$AWS_ACCESS" ]] && { echo "Missing AWS Access Key" 1>&2; CONFIG_MISSING=true;  }
 [[ -z "$AWS_SECRET" ]] && { echo "Missing AWS Secret Key's public ssh key"; CONFIG_MISSING=true;  }
-[[ -z "$SIZE" ]] && { echo "Need an instance size. e.g. t2.small" 1>&2; CONFIG_MISSING=true;  }
 
 [[ -z "$CONFIG_MISSING" ]] || { echo "Config missing from config file."; usage; exit 1; }
+
+[[ -n "$INSTANCE_SIZE" ]] && SIZE="$INSTANCE_SIZE"
+[[ -z "$SIZE" ]] && { echo "Instance size missing. Can be set in either config file or cli args. e.g. t2.small" 1>&2; usage; exit 1; }
 
 
 ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -112,6 +120,6 @@ cd "packs/$PACK"
 if [ -f "prep.sh" ]; then
     ./prep.sh
 fi
-echo "packer build -force -only=amazon-ebs -var \"boxname=$VBOX\" -var \"user=$USER\" -var \"ssh_key=$SSH_KEY\" -var \"aws_access=$AWS_ACCESS\" -var \"aws_secret=$AWS_SECRET\" \"$FILE\""
+echo "packer build -force -only=amazon-ebs -var \"boxname=$VBOX\" -var \"instancesize=$SIZE\" -var \"user=$USER\" -var \"ssh_key=$SSH_KEY\" -var \"aws_access=$AWS_ACCESS\" -var \"aws_secret=$AWS_SECRET\" \"$FILE\""
 packer build -force -only=amazon-ebs -var "boxname=$VBOX" -var "instancesize=$SIZE" -var "user=$USER" -var "ssh_key=$SSH_KEY" -var "aws_access=$AWS_ACCESS" -var "aws_secret=$AWS_SECRET" "$FILE"
 cd -

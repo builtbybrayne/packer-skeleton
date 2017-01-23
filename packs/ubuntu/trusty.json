@@ -2,7 +2,7 @@
   "provisioners": [
     {
       "type": "file",
-      "source": "../../keys/id_rsa.pub",
+      "source": "{{user `ssh_key`}}",
       "destination": "/tmp/id_rsa.pub"
     },
     {

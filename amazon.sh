@@ -9,11 +9,11 @@ set -e
 usage() {
     echo "Usage: $0 -p <PACK> -f <FILE> -v <VERSION> -c <CONFIG_FILE> -u <USER_FILE>" 1>&2
     echo "" 1>&2
-    echo "  -c <CONFIG_FILE   Specify the config file" 1>&2;
-    echo "  -f <JSON_FILE>    Specify the json file inside the pack. Defaults to 'main.json'" 1>&2;
+    echo "  -c <CONFIG_FILE   Specify the config file. (Default: ./amazon.conf)" 1>&2;
+    echo "  -f <JSON_FILE>    Specify the json file inside the pack. (Default: main.json)" 1>&2;
     echo "  -p <PACK>         Pack" 1>&2;
     echo "  -s <SIZE>         Instance size. e.g. t2.micro" 1>&2;
-    echo "  -u <USER_FILE>    User Config File" 1>&2;
+    echo "  -u <USER_FILE>    User Config File. (Default: ./user.conf)" 1>&2;
     echo "  -v <VERSION>      Version the build" 1>&2;
     echo "" 1>&2
     exit 1
@@ -22,8 +22,8 @@ usage() {
 VERSION=
 FILE="main.json"
 PACK=
-CONFIG_FILE=
-USER_FILE=
+CONFIG_FILE="amazon.conf"
+USER_FILE="user.conf"
 
 INSTANCE_SIZE=
 

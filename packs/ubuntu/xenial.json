@@ -11,11 +11,6 @@
       "destination": "/tmp/bash_aliases"
     },
     {
-      "type": "file",
-      "source": "../../resources/dumpserver.py",
-      "destination": "/tmp/dumpserver.py"
-    },
-    {
       "type": "shell",
       "scripts": [
         "../../scripts/aliases.sh",

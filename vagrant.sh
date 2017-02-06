@@ -7,10 +7,11 @@
 
 set -e
 usage() {
-    echo "Usage: $0 -p <PACK> -f <FILE> -v <VERSION> -c <CONFIG_FILE> -u <USER_FILE>" 1>&2;
+    echo "Usage: $0 -i <PROJECT_ID> -p <PACK> -f <FILE> -v <VERSION> -c <CONFIG_FILE> -u <USER_FILE>" 1>&2;
     echo "" 1>&2;
     echo "  -c <CONFIG_FILE   Specify the config file. (Default: ./vagrant.conf)" 1>&2;
     echo "  -f <JSON_FILE>    Specify the json file inside the pack. (Default: main.json)" 1>&2;
+    echo "  -i <ID>           Specify a project ID" 1>&2;
     echo "  -p <PACK>         Pack. (Default: ubuntu)" 1>&2;
     echo "  -u <USER_FILE>    User Config File. (Default: ./user.conf)" 1>&2;
     echo "  -v <VERSION>      Version the build" 1>&2;
@@ -23,11 +24,15 @@ FILE="main.json"
 PACK="ubuntu"
 CONFIG_FILE="vagrant.conf"
 USER_FILE="user.conf"
+PROJECT_ID=
 
-while getopts ":c:f:v:u:p:" o; do
+while getopts ":c:f:v:u:p:i:" o; do
     case "${o}" in
         f)
             FILE="$OPTARG"
+            ;;
+        i)
+            PROJECT_ID="$OPTARG"
             ;;
         p)
             PACK="$OPTARG"
@@ -48,6 +53,7 @@ while getopts ":c:f:v:u:p:" o; do
 done
 shift $((OPTIND-1))
 
+[[ -z "$PROJECT_ID" ]] && { echo "Missing project ID" 1>&2; ARGS_MISSING=true; }
 [[ -z "$PACK" ]] && { echo "Missing pack choice" 1>&2; ARGS_MISSING=true; }
 [[ -z "$VERSION" ]] && { echo "Missing version" 1>&2; ARGS_MISSING=true; }
 [[ -z "$CONFIG_FILE" ]] && { echo "Missing config file" 1>&2; ARGS_MISSING=true; }
@@ -86,7 +92,7 @@ SSH_KEY=
 
 
 VPACK="$PACK"
-VBOX="osimg-$PACK"
+VBOX="$PROJECT_ID-$PACK"
 if [[ -n "$VERSION" ]]; then
     VPACK="$VPACK-$VERSION"
     VBOX="$VBOX-$VERSION"
@@ -119,8 +125,8 @@ fi
 
 echo "- Reloading Vagrant"
 vagrant plugin install vagrant-vbguest
-[[ -n `vagrant box list | grep "osimg/$VPACK "` ]] && vagrant box remove "osimg/$VPACK" || true
-vagrant box add "osimg/$VPACK" "builds/$VBOX.box"
+[[ -n `vagrant box list | grep "$PROJECT_ID/$VPACK "` ]] && vagrant box remove "$PROJECT_ID/$VPACK" || true
+vagrant box add "$PROJECT_ID/$VPACK" "builds/$VBOX.box"
 
 
-echo "- $PACK vagrant box installed: osimg/$VPACK"
+echo "- $PACK vagrant box installed: $PROJECT_ID/$VPACK"
